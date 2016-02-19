@@ -16,20 +16,21 @@ class Transform: Component {
     override var active: Bool {
         didSet {
             active = true
-//            self.root.paused = !active
         }
     }
     
+    //MARK: Parent
     private var _parent: Transform?
     var parent: Transform? {
         get{ return _parent}
     }
     
+    //MARK: Position
     var localposition: CGPoint {
         get{ return self.root.position }
         set{
             root.position = newValue
-            updateGlobalposition(newValue)
+            updateGlobalposition()
         }
     }
     
@@ -46,41 +47,67 @@ class Transform: Component {
         set {
             guard let value = newValue else { return }
             self._position = value
-            updateLocalPosition(value)
+            updateLocalPosition()
         }
     }
     
+    //MARK: Rotation
+    private var _rotation = CGFloat(0)
     var rotation: CGFloat {
+        get{ return _rotation }
+        set{
+            self._rotation = newValue
+            updateLocalRotation()
+        }
+    }
+    
+    var localRotation: CGFloat {
         get { return root.zRotation.radiansToDegrees() }
         set { root.zRotation = newValue.degreesToRadians() }
     }
     
-//    var globalRotation: CGFloat {
-//        get { return root.zRotation}
-//    }
-    
+    //MARK: Scale
     var scale: CGPoint {
         get { return root.scaleAsPoint }
         set { root.scaleAsPoint = newValue }
     }
     
     
-    private func updateGlobalposition(newValue: CGPoint) {
+    //MARK: Handlers
+    private func updateGlobalposition() {
         guard let newParent = root.parent,
               let scene = root.scene else { return }
-        _position = scene.convertPoint(newValue, fromNode: newParent)
+        _position = scene.convertPoint(root.position, fromNode: newParent)
     }
     
-    private func updateLocalPosition(newValue: CGPoint) {
+    private func updateLocalPosition() {
         guard let parent = root.parent,
               let scene = root.scene else { return }
         root.position = parent.convertPoint(_position, fromNode: scene)
     }
     
+    private func updateGlobalRotation() {
+        _rotation = findRotation() + root.zRotation.radiansToDegrees()
+    }
+    
+    private func updateLocalRotation() {
+        localRotation = _rotation - findRotation()
+    }
+    
+    func findRotation() -> CGFloat{
+        guard let parent = self.parent else {
+            return localRotation
+        }
+        return parent.findRotation() + localRotation
+    }
+    
+    //MARK: Functions
     func setParent(newParent: Transform?, worldPositionStays: Bool = true) {
         self._parent = newParent
         updateRoot()
-        if worldPositionStays { updateLocalPosition(_position) }
+        if worldPositionStays { updateLocalPosition() }
+        updateLocalRotation()
+        
     }
     
     func addChild(child: Transform) {
@@ -102,6 +129,7 @@ class Transform: Component {
     }
     
     override func updateWithDeltaTime(seconds: NSTimeInterval) {
-        updateGlobalposition(root.position)
+        updateGlobalposition()
+        updateGlobalRotation()
     }
 }

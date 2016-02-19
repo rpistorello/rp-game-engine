@@ -29,10 +29,9 @@ class GameScene: Scene {
         let max = CGFloat(90).degreesToRadians()
         let min = CGFloat(0.000000).degreesToRadians()
         
-        objects[0].transform.rotation = max
+        objects[0].transform.localRotation = max
         objects[0].runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.rotateToAngle(min, duration: 5.0),SKAction.rotateToAngle(max, duration: 5.0)])))
         objects[1].runAction(SKAction.repeatActionForever(SKAction.sequence([SKAction.rotateToAngle(max, duration: 5.0),SKAction.rotateToAngle(min, duration: 5.0)])))
-        objects[2].transform.scale = CGPointMake(-1, 1)
         
     }
     

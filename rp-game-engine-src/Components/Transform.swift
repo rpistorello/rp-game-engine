@@ -67,13 +67,19 @@ class Transform: Component {
     }
     
     //MARK: Scale
+    var lossyScale: CGPoint {
+        get {
+            let parentLossyScale = findParentLossyScale()
+            return CGPointMake(parentLossyScale.x * scale.x, parentLossyScale.y * scale.y)
+        }
+    }
+    
     var scale: CGPoint {
         get { return root.scaleAsPoint }
         set { root.scaleAsPoint = newValue }
     }
     
-    
-    //MARK: Handlers
+    //MARK: Position Handlers
     private func updateGlobalposition() {
         guard let newParent = root.parent,
               let scene = root.scene else { return }
@@ -86,20 +92,33 @@ class Transform: Component {
         root.position = parent.convertPoint(_position, fromNode: scene)
     }
     
+    //MARK: Rotation Handlers
     private func updateGlobalRotation() {
-        _rotation = findRotation() + root.zRotation.radiansToDegrees()
+        _rotation = findParentRotation() + root.zRotation.radiansToDegrees()
     }
     
     private func updateLocalRotation() {
-        localRotation = _rotation - findRotation()
+        localRotation = _rotation - findParentRotation()
     }
     
-    func findRotation() -> CGFloat{
+    func findParentRotation() -> CGFloat{
         guard let parent = self.parent else {
             return localRotation
         }
-        return parent.findRotation() + localRotation
+        return parent.findParentRotation() + localRotation
     }
+    
+    //MARK: Scale Handlers
+    
+    func findParentLossyScale() -> CGPoint{
+        guard let parent = self.parent else {
+            return scale
+        }
+        let parentLossyScale = parent.findParentLossyScale()
+        return CGPointMake(parentLossyScale.x * scale.x, parentLossyScale.y * scale.y)
+    }
+    
+    
     
     //MARK: Functions
     func setParent(newParent: Transform?, worldPositionStays: Bool = true) {
@@ -114,10 +133,13 @@ class Transform: Component {
         child.setParent(self)
     }
     
+    override func OnComponentAdded() {
+        updateRoot()
+    }
+    
     internal func updateRoot() {
         if self.root.parent != nil { self.root.removeFromParent() }
         guard let tparent = self.parent else {
-//            addToScene()
             self.gameObject.scene.addChild(root)
             return
         }

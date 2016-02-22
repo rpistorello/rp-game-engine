@@ -9,10 +9,6 @@
 import SpriteKit
 import GameplayKit
 
-protocol Observer {
-    init( )
-}
-
 class GameObject: GKEntity {
     var active: Bool = true {
         didSet {
@@ -27,20 +23,24 @@ class GameObject: GKEntity {
         set{transform.root.physicsBody = newValue}
     }
 
-    override init() {
-        guard let scene = GameViewController.mainView.scene as? Scene else {
-            fatalError("No Scene in current view")
-        }
-        self.scene = scene
+    init(scene: Scene? = nil) {
         super.init()
+        guard let targetScene = scene ?? Scene.loadingScene ?? Scene.currentScene else {
+            fatalError("No Scene were found")
+        }
+        self.scene = targetScene
         self.addComponent(transform)
-        scene.gameObjects.insert(self)
-        transform.updateRoot()
+        self.scene.gameObjects.insert(self)
+        setupGameObject()
+    }
+    
+    func setupGameObject() {
+        
     }
     
     override func addComponent(component: GKComponent) {
-        super.addComponent(component)
         scene.validateComponent(component)
+        super.addComponent(component)
         if let component = component as? Component {
             component.OnComponentAdded()
         }
@@ -52,5 +52,9 @@ class GameObject: GKEntity {
     
     func runAction(action: SKAction) {
         transform.root.runAction(action)
+    }
+    override func updateWithDeltaTime(seconds: NSTimeInterval) {
+        if !active { return }
+        super.updateWithDeltaTime(seconds)
     }
 }

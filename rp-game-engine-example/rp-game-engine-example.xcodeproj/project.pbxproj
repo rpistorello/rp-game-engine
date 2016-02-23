@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C00EBD41C7B6992009979DB /* NoSpriteObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C00EBD31C7B6992009979DB /* NoSpriteObject.swift */; };
 		8C34FF6F1C777DF0008E43C2 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C34FF6E1C777DF0008E43C2 /* GameScene.swift */; };
 		8C34FF891C778E12008E43C2 /* Agent2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C34FF711C778E12008E43C2 /* Agent2D.swift */; };
 		8C34FF8A1C778E12008E43C2 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C34FF721C778E12008E43C2 /* Component.swift */; };
@@ -56,6 +57,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C00EBD31C7B6992009979DB /* NoSpriteObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoSpriteObject.swift; sourceTree = "<group>"; };
 		8C34FF6E1C777DF0008E43C2 /* GameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		8C34FF711C778E12008E43C2 /* Agent2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Agent2D.swift; sourceTree = "<group>"; };
 		8C34FF721C778E12008E43C2 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
@@ -193,11 +195,12 @@
 			children = (
 				8C9B80611C77646200DF064E /* AppDelegate.swift */,
 				8C9B80671C77646200DF064E /* GameViewController.swift */,
+				8C34FF6E1C777DF0008E43C2 /* GameScene.swift */,
+				8C00EBD31C7B6992009979DB /* NoSpriteObject.swift */,
 				8C9B80691C77646200DF064E /* Main.storyboard */,
 				8C9B806C1C77646200DF064E /* Assets.xcassets */,
 				8C9B806E1C77646200DF064E /* LaunchScreen.storyboard */,
 				8C9B80711C77646200DF064E /* Info.plist */,
-				8C34FF6E1C777DF0008E43C2 /* GameScene.swift */,
 			);
 			path = "rp-game-engine-example";
 			sourceTree = "<group>";
@@ -382,6 +385,7 @@
 				8C34FF961C778E12008E43C2 /* SKAction+Extensions.swift in Sources */,
 				8C34FF991C778E12008E43C2 /* SKNode+Extensions.swift in Sources */,
 				8C34FF981C778E12008E43C2 /* SKColor+Extensions.swift in Sources */,
+				8C00EBD41C7B6992009979DB /* NoSpriteObject.swift in Sources */,
 				8C34FF901C778E12008E43C2 /* Float+Extensions.swift in Sources */,
 				8C34FF8D1C778E12008E43C2 /* Transform.swift in Sources */,
 				8C34FF911C778E12008E43C2 /* CGFloat+Extensions.swift in Sources */,

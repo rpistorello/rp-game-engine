@@ -19,6 +19,43 @@ class SpriteRenderer: Component {
         }
     }
     
+    
+    init(sprite: SKSpriteNode) {
+        super.init()
+        self.sprite = sprite
+    }
+    
+    init(texture: SKTexture?, color: UIColor? = nil, size: CGSize? = nil, normalMap: SKTexture? = nil) {
+        super.init()
+        if let normalMap = normalMap {
+            self.sprite = SKSpriteNode(texture: texture, normalMap: normalMap)
+            return
+        }
+        else if let color = color {
+            let _size = size ?? texture?.size() ?? CGSizeMake(100, 100)
+            self.sprite = SKSpriteNode(texture: texture, color: color, size: _size)
+            return
+        } else if let size = size {
+            self.sprite = SKSpriteNode(texture: texture, size: size)
+            return
+        }
+        self.sprite =  SKSpriteNode(texture: texture)
+    }
+    
+    init(imageNamed: String, normalMapped: Bool? = nil) {
+        super.init()
+        guard let normalMapped = normalMapped else {
+            self.sprite = SKSpriteNode(imageNamed: imageNamed)
+            return
+        }
+        self.sprite = SKSpriteNode(imageNamed: imageNamed, normalMapped: normalMapped)
+    }
+    
+    init(color: UIColor = UIColor.whiteColor(), size: CGSize = CGSizeMake(100, 100)) {
+        super.init()
+        self.sprite = SKSpriteNode(color: color, size: size)
+    }
+    
     override func OnComponentAdded() {
         guard let newSprite = self.sprite else { return }
         transform.root.addChild(newSprite)

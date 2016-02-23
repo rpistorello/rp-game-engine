@@ -22,20 +22,20 @@ class GameObject: GKEntity {
         get{return transform.root.physicsBody}
         set{transform.root.physicsBody = newValue}
     }
-
+    
+    func setup() {
+        
+    }
     init(scene: Scene? = nil) {
         super.init()
         guard let targetScene = scene ?? Scene.loadingScene ?? Scene.currentScene else {
             fatalError("No Scene were found")
         }
         self.scene = targetScene
-        self.addComponent(transform)
-        self.scene.gameObjects.insert(self)
-        setupGameObject()
-    }
-    
-    func setupGameObject() {
-        
+        targetScene.transformSystem.first!.addComponent(transform)
+        targetScene.gameObjects.insert(self)
+        addComponent(transform)
+        setup()
     }
     
     override func addComponent(component: GKComponent) {

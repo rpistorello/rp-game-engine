@@ -12,26 +12,28 @@ import GameplayKit
 class Scene: SKScene {
     static var isLoadingScene = false
 
-    static var _currentScene: Scene? = nil
+    private static var _currentScene: Scene? = nil
     static var currentScene: Scene? {
         get{
             return _currentScene
         }
     }
     
-    static var _loadingScene: Scene? = nil
+    private static var _loadingScene: Scene? = nil
     static var loadingScene: Scene? {
         get{
             return _loadingScene
         }
     }
     
-    var systems: [GKComponentSystem] = [
-        GKComponentSystem(componentClass: Transform.self),
-        GKComponentSystem(componentClass: Agent2D.self),
-        GKComponentSystem(componentClass: Component.self),
-        GKComponentSystem(componentClass: SpriteRenderer.self)
-    ]
+    class func presentScene(scene: Scene, loadingScene: Scene) {
+//        SKView.
+    }
+    
+    let transformSystem: [GKComponentSystem] = [GKComponentSystem(componentClass: Transform.self)]
+    var behaviourSystems: [GKComponentSystem] = [ GKComponentSystem(componentClass: Agent2D.self),
+                                                  GKComponentSystem(componentClass: Component.self)]
+    var renderSystems: [GKComponentSystem] = [GKComponentSystem(componentClass: SpriteRenderer.self)]
     
     var gameObjects = Set<GameObject>()
     
@@ -42,35 +44,49 @@ class Scene: SKScene {
     var lastUpdateTime = NSTimeInterval(0)
     
     func validateComponent(component: GKComponent) {
-        let system = systems.filter { $0.componentClass == component.classForCoder }
-        guard let sys = system.first else {
-            fatalError("Component System not declared")
+        if component is SpriteRenderer {
+            renderSystems.first?.addComponent(component)
+            return
         }
-        sys.addComponent(component)
+        else if component is Transform {
+            transformSystem.first?.addComponent(component)
+            return
+        }
+        let system = behaviourSystems.filter { $0.componentClass == component.classForCoder }
+        guard let foundSystem = system.first else {
+            let newSystem = GKComponentSystem(componentClass: component.classForCoder.self)
+            behaviourSystems += [newSystem]
+            newSystem.addComponent(component)
+            return
+        }
+        foundSystem.addComponent(component)
     }
     
     override func didMoveToView(view: SKView) {
         super.didMoveToView(view)
+        Scene._loadingScene = self
         
-        loadObjects()
-        
-        for sys in systems {
-            for comp in sys.components {
-                comp.Awake()
-            }
-        }
-        
-        for sys in systems {
-            for comp in sys.components {
-                comp.Start()
-            }
-        }
-        
+        self.loadObjects()
+        Scene._loadingScene = nil
+        Scene._currentScene = self
+        self.initComponents()
     }
     
-    func loadObjects() {
-        
+    func loadObjects() { }
+    
+    func initComponents() {
+        let transformComponents = allComponents(transformSystem)
+        transformComponents.forEach{ $0.Awake() }
+        transformComponents.forEach{ $0.Start() }
+
     }
+    
+    private func allComponents(systems: [GKComponentSystem]) -> [GKComponent]   {
+        var components = [GKComponent]()
+        systems.map { $0.components }.forEach { components += $0 }
+        return components
+    }
+    
     override func update(currentTime: NSTimeInterval) {
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime;
@@ -78,12 +94,19 @@ class Scene: SKScene {
         let delta = currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
         Time.sharedInstance._deltaTime = delta
-        for componentSystem in systems {
-            componentSystem.updateWithDeltaTime(delta)
-        }
+        
+        //Update by priority
+        transformSystem.forEach { $0.updateWithDeltaTime(delta) }
+        let behaviourComponents = allComponents(behaviourSystems)
+        behaviourComponents.forEach { $0.Update() }
+        behaviourComponents.forEach { $0.LateUpdate() }
+        renderSystems.forEach { $0.updateWithDeltaTime(delta) }
     }
     
     
+    override init() {
+        super.init(size: UIScreen.mainScreen().bounds.size)
+    }
     override init(size: CGSize) {
         super.init(size: size)
     }

@@ -25,7 +25,7 @@ extension GKComponent {
 }
 
 class Component: GKComponent {
-    var system: GKComponentSystem?
+    private var system: GKComponentSystem?
     var active: Bool = true {
         didSet {
             
@@ -34,13 +34,12 @@ class Component: GKComponent {
     
     override func Awake() {
         
-        print("awake \(classForCoder)")
     }
     
     override func Start() {
         
-        print("start \(classForCoder)")
     }
+    
     
     func remove(){
         system?.removeComponent(self)

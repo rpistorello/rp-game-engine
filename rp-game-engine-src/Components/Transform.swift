@@ -137,7 +137,7 @@ class Transform: Component {
         updateRoot()
     }
     
-    internal func updateRoot() {
+    private func updateRoot() {
         if self.root.parent != nil { self.root.removeFromParent() }
         guard let tparent = self.parent else {
             self.gameObject.scene.addChild(root)
@@ -150,6 +150,7 @@ class Transform: Component {
         root.runAction(action)
     }
     
+    //MARK: Update
     override func updateWithDeltaTime(seconds: NSTimeInterval) {
         updateGlobalposition()
         updateGlobalRotation()

@@ -15,7 +15,10 @@ class SpriteRenderer: Component {
                 oldSprite.removeFromParent()
             }
             guard let newSprite = self.sprite else { return }
-            if entity != nil { transform.root.addChild(newSprite) }
+            if let gameObject = entity as? GameObject
+            {
+                gameObject.transform.addSprite(newSprite)
+            }
         }
     }
     
@@ -58,6 +61,6 @@ class SpriteRenderer: Component {
     
     override func OnComponentAdded() {
         guard let newSprite = self.sprite else { return }
-        transform.root.addChild(newSprite)
+        transform.addSprite(newSprite)
     }
 }

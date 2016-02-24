@@ -98,6 +98,7 @@ class Scene: SKScene {
         //Update by priority
         transformSystem.forEach { $0.updateWithDeltaTime(delta) }
         let behaviourComponents = allComponents(behaviourSystems)
+        behaviourComponents.forEach { $0.updateWithDeltaTime(delta) }
         behaviourComponents.forEach { $0.Update() }
         behaviourComponents.forEach { $0.LateUpdate() }
         renderSystems.forEach { $0.updateWithDeltaTime(delta) }

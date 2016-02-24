@@ -11,7 +11,7 @@
 import SpriteKit
 
 class Transform: Component {
-    internal let root = SKNode()
+    private let root = SKNode()
     
     override var active: Bool {
         didSet {
@@ -19,10 +19,15 @@ class Transform: Component {
         }
     }
     
+    var hidden: Bool {
+        get { return root.hidden }
+        set { root.hidden = newValue }
+    }
+    
     //MARK: Parent
     private var _parent: Transform?
     var parent: Transform? {
-        get{ return _parent}
+        get{ return _parent }
     }
     
     //MARK: Position
@@ -35,18 +40,18 @@ class Transform: Component {
     }
     
     private var _position: CGPoint = CGPointZero
-    var position: CGPoint? {
+    var position: CGPoint {
         get {
             guard let newParent = root.parent,
                   let scene = root.scene else {
                     print("Parent or scene not found \(gameObject.classForCoder)")
-                    return nil }
+                    return self._position
+            }
             _position = scene.convertPoint(root.position, fromNode: newParent)
             return self._position
         }
         set {
-            guard let value = newValue else { return }
-            self._position = value
+            self._position = newValue
             updateLocalPosition()
         }
     }
@@ -77,6 +82,12 @@ class Transform: Component {
     var scale: CGPoint {
         get { return root.scaleAsPoint }
         set { root.scaleAsPoint = newValue }
+    }
+    
+    //MARK: Collider
+    internal var physicsBody: SKPhysicsBody? {
+        get{ return root.physicsBody}
+        set{ root.physicsBody = newValue}
     }
     
     //MARK: Position Handlers
@@ -131,6 +142,10 @@ class Transform: Component {
     
     func addChild(child: Transform) {
         child.setParent(self)
+    }
+    
+    internal func addSprite(sprite: SKSpriteNode) {
+            root.addChild(sprite)
     }
     
     override func OnComponentAdded() {

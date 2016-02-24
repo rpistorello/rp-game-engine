@@ -12,20 +12,19 @@ import GameplayKit
 class GameObject: GKEntity {
     var active: Bool = true {
         didSet {
-            transform.root.hidden = !active
+            transform.hidden = !active
         }
     }
     let transform = Transform()
     var scene: Scene!
     
+    //MARK: Collider
     var physicsBody: SKPhysicsBody? {
-        get{return transform.root.physicsBody}
-        set{transform.root.physicsBody = newValue}
+        get{return transform.physicsBody}
+        set{transform.physicsBody = newValue}
     }
     
-    func setup() {
-        
-    }
+    //MARK: Init
     init(scene: Scene? = nil) {
         super.init()
         guard let targetScene = scene ?? Scene.loadingScene ?? Scene.currentScene else {
@@ -38,6 +37,12 @@ class GameObject: GKEntity {
         setup()
     }
     
+    /** Write your code here to setup you gameObject with desired compoments */
+    func setup() {
+        
+    }
+    
+    //MARK: Components
     override func addComponent(component: GKComponent) {
         scene.validateComponent(component)
         super.addComponent(component)
@@ -50,9 +55,13 @@ class GameObject: GKEntity {
         child.transform.setParent(self.transform)
     }
     
+    //MARK: SKAction
+    
     func runAction(action: SKAction) {
-        transform.root.runAction(action)
+        transform.runAction(action)
     }
+    
+    //MARK: Update
     override func updateWithDeltaTime(seconds: NSTimeInterval) {
         if !active { return }
         super.updateWithDeltaTime(seconds)

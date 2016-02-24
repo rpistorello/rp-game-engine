@@ -14,7 +14,7 @@ class Agent2D: GKAgent2D, GKAgentDelegate {
     
     override var behavior: GKBehavior? {
         didSet {
-            updateAgent()
+            
         }
     }
     
@@ -26,43 +26,31 @@ class Agent2D: GKAgent2D, GKAgentDelegate {
         mass = 1.0
     }
     
-    func updateAgent() {
-        self.position = transform.position?.float ?? CGPointZero.float
-
-    
-    
-        self.rotation = transform.rotation.degreesToRadians().float
-    }
     
     override func Awake() {
-        self.position = transform.position?.float ?? CGPointZero.float
-        print("agent awake \(classForCoder)")
+        
     }
     
     override func Start() {
         
-        print("agent start \(classForCoder)")
     }
     
-    func updateTransform(agent: GKAgent2D) {
-        transform.position = agent.position.point
-//        transform.rotation = agent.rotation.cgfloat.radiansToDegrees()
+    
+    func updateAgent() {
+        self.position = transform.position.float
+        self.rotation = transform.rotation.degreesToRadians().float
+    }
+    
+    func updateTransform() {
+        transform.position = position.point
+        transform.rotation = rotation.cgfloat.radiansToDegrees()
     }
     
     func agentWillUpdate(agent: GKAgent) {
-        guard
-            let _ = agent as? GKAgent2D,
-            let _ = gameObject.physicsBody
-            else { return }
         updateAgent()
     }
     
     func agentDidUpdate(agent: GKAgent) {
-        guard let agent = agent as? GKAgent2D else {
-            return
-        }
-        transform.position = agent.position.point
-//        transform.rotation = agent.rotation.cgfloat.radiansToDegrees()
-        updateTransform(agent)
+        updateTransform()
     }
 }

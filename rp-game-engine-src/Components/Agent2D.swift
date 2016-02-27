@@ -12,6 +12,19 @@ import GameplayKit
 
 class Agent2D: GKAgent2D, GKAgentDelegate {
     
+    override var gameObject: GameObject {
+        get{
+            guard let gameObject = self.entity as? GameObject else {
+                fatalError("Bad access component \(self.classForCoder)")
+            }
+            return gameObject
+        }
+    }
+    override var transform: Transform {
+        get {
+            return gameObject.transform
+        }
+    }
     override var behavior: GKBehavior? {
         didSet {
             
@@ -27,23 +40,14 @@ class Agent2D: GKAgent2D, GKAgentDelegate {
     }
     
     
-    override func Awake() {
-        
-    }
-    
-    override func Start() {
-        
-    }
-    
-    
     func updateAgent() {
         self.position = transform.position.float
-        self.rotation = transform.rotation.degreesToRadians().float
+        self.rotation = transform.localRotation.degreesToRadians().float
     }
     
     func updateTransform() {
         transform.position = position.point
-        transform.rotation = rotation.cgfloat.radiansToDegrees()
+        transform.localRotation = rotation.cgfloat.radiansToDegrees()
     }
     
     func agentWillUpdate(agent: GKAgent) {

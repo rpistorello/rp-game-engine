@@ -8,8 +8,41 @@
 
 import GameplayKit
 
-extension GKComponent {
-    var gameObject: GameObject {
+@objc protocol ComponentProtocol {
+    var gameObject: GameObject? { get }
+    var transform: Transform? { get }
+    
+    optional func Awake()
+    optional func Start()
+    optional func Update()
+    optional func LateUpdate()
+}
+
+extension GKComponent: ComponentProtocol {
+    var gameObject: GameObject? {
+        get{
+            guard let gameObject = self.entity as? GameObject else {
+                return nil
+            }
+            return gameObject
+        }
+    }
+    var transform: Transform? {
+        get {
+            return gameObject?.transform
+        }
+    }
+}
+
+class Component: GKComponent {
+    internal var system: GKComponentSystem?
+    var active: Bool = true {
+        didSet {
+            
+        }
+    }
+    
+    override var gameObject: GameObject {
         get{
             guard let gameObject = self.entity as? GameObject else {
                 fatalError("Bad access component \(self.classForCoder)")
@@ -17,29 +50,11 @@ extension GKComponent {
             return gameObject
         }
     }
-    var transform: Transform {
+    override var transform: Transform {
         get {
             return gameObject.transform
         }
     }
-}
-
-class Component: GKComponent {
-    private var system: GKComponentSystem?
-    var active: Bool = true {
-        didSet {
-            
-        }
-    }
-    
-    override func Awake() {
-        
-    }
-    
-    override func Start() {
-        
-    }
-    
     
     func remove(){
         system?.removeComponent(self)

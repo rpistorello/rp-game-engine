@@ -18,7 +18,17 @@ class GameObject: GKEntity {
     let transform = Transform()
     var scene: Scene!
     
-    //MARK: Collider
+    var tag: String = "Untagged" {
+        didSet {
+            if tag.isEmpty { tag = "Untagged" }
+        }
+    }
+    
+    //MARK: Physics
+    internal var OnCollisionEnter: [((Collision2D) -> ())] = []
+    internal var OnCollisionStay: [((Collision2D) -> ())] = []
+    internal var OnCollisionExit: [((Collision2D) -> ())] = []
+    
     var physicsBody: SKPhysicsBody? {
         get{return transform.physicsBody}
         set{transform.physicsBody = newValue}
@@ -46,13 +56,54 @@ class GameObject: GKEntity {
     override func addComponent(component: GKComponent) {
         scene.validateComponent(component)
         super.addComponent(component)
-        if let component = component as? Component {
-            component.OnComponentAdded()
+        component.OnComponentAdded()
+        updateCollisions(component)
+    }
+    
+    internal func updateCollisions(component: GKComponent) {
+        if component.conformsToProtocol(BehaviourProtocol) {
+            OnCollisionEnter.removeAll(keepCapacity: true)
+            OnCollisionStay.removeAll(keepCapacity: true)
+            OnCollisionExit.removeAll(keepCapacity: true)
+            
+            let behaviours = components.map{ $0 as? BehaviourProtocol }
+                .filter{ $0 != nil }
+                .map{ $0! }
+            
+            for behaviour in behaviours {
+                OnCollisionEnter += evaluateCollision(behaviour.OnCollisionEnter)
+                OnCollisionStay += evaluateCollision(behaviour.OnCollisionStay)
+                OnCollisionExit += evaluateCollision(behaviour.OnCollisionExit)
+            }
         }
     }
     
+    private func evaluateCollision( block: ((Collision2D) -> ())?) -> [(Collision2D) -> ()] {
+        guard let block = block as ((Collision2D) -> ())! else {
+            return []
+        }
+        return [block]
+    }
+    
+    override func removeComponentForClass(componentClass: AnyClass) {
+        super.removeComponentForClass(componentClass)
+        if let component = (components.filter{
+            $0.classForCoder == componentClass.self
+            }).first {
+                updateCollisions(component)
+                (component as? Component)?.detachFromSystem()
+        }
+    }
+
     func addChild(child: GameObject) {
         child.transform.setParent(self.transform)
+    }
+    
+    //MARK: Message
+    func SendMessage(methodName: String) {
+        let method = Selector(methodName)
+        components.filter { $0.respondsToSelector(method) }
+            .forEach{ $0.performSelector(method) }
     }
     
     //MARK: SKAction

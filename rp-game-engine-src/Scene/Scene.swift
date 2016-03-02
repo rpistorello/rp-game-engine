@@ -26,10 +26,7 @@ class Scene: SKScene {
         }
     }
     
-    class func presentScene(scene: Scene, loadingScene: Scene) {
-        
-    }
-    
+    internal let handleCollisions: () -> ()
     //MARK: Systems
     let transformSystem: [GKComponentSystem] = [GKComponentSystem(componentClass: Transform.self)]
     var behaviourSystems: [GKComponentSystem] = [ GKComponentSystem(componentClass: Agent2D.self),
@@ -48,8 +45,6 @@ class Scene: SKScene {
     //MARK: Init
     override func didMoveToView(view: SKView) {
         super.didMoveToView(view)
-        physicsWorld.contactDelegate = self
-        
         Scene._loadingScene = self
         self.loadObjects()
         
@@ -58,12 +53,11 @@ class Scene: SKScene {
         self.initComponents()
     }
     
-    
-    override init() {
-        super.init(size: UIScreen.mainScreen().bounds.size)
-    }
-    override init(size: CGSize) {
+    override init(size: CGSize = UIScreen.mainScreen().bounds.size) {
+        let physics = Physics()
+        handleCollisions = physics.handleCollisions
         super.init(size: size)
+        physicsWorld.contactDelegate = physics
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -97,6 +91,7 @@ class Scene: SKScene {
             return
         }
         foundSystem.addComponent(component)
+        (component as? Component)?.system = foundSystem
     }
     
     func initComponents() {
@@ -113,6 +108,7 @@ class Scene: SKScene {
     }
     
     //MARK: Update
+    var behaviourComponents = [ComponentProtocol]()
     override func update(currentTime: NSTimeInterval) {
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime;
@@ -122,17 +118,25 @@ class Scene: SKScene {
         Time.sharedInstance._deltaTime = delta
         
         //Update by priority
-        transformSystem.forEach { $0.updateWithDeltaTime(delta) }
-        let behaviourComponents = allComponents(behaviourSystems)
-        behaviourComponents.forEach { ($0 as! GKComponent).updateWithDeltaTime(delta) }
-        behaviourComponents.forEach { $0.Update?() }
-        behaviourComponents.forEach { $0.LateUpdate?() }
+        behaviourComponents = allComponents(behaviourSystems)
+        behaviourComponents.forEach { ($0 as? GKComponent)?.updateWithDeltaTime(delta) }
+        behaviourComponents.forEach { ($0 as? BehaviourProtocol)?.Update?() }
+        behaviourComponents.forEach { ($0 as? BehaviourProtocol)?.LateUpdate?() }
         renderSystems.forEach { $0.updateWithDeltaTime(delta) }
+    }
+    
+    override func didEvaluateActions() {
+        //Must update Tranform after SKAction changed the atributes
+        transformSystem.forEach { $0.updateWithDeltaTime(Time.deltaTime) }
+    }
+    
+    //MARK: Physics
+    override func didSimulatePhysics() {
+        handleCollisions() 
     }
 }
 
-
-class Time {
+public class Time {
     //MARK: Time
     private var _deltaTime = Double(0)
     class var deltaTime: Double {
@@ -140,4 +144,7 @@ class Time {
     }
     static let sharedInstance = Time()
     
+    private init() {
+        
+    }
 }

@@ -14,8 +14,6 @@ import GameplayKit
     
     optional func Awake()
     optional func Start()
-    optional func Update()
-    optional func LateUpdate()
 }
 
 extension GKComponent: ComponentProtocol {
@@ -32,9 +30,24 @@ extension GKComponent: ComponentProtocol {
             return gameObject?.transform
         }
     }
+    internal func OnComponentAdded() {
+        
+    }
+}
+
+extension GKEntity {
+    
 }
 
 class Component: GKComponent {
+    var tag: String {
+        get{
+            return gameObject.tag
+        }
+        set {
+            gameObject.tag = newValue
+        }
+    }
     internal var system: GKComponentSystem?
     var active: Bool = true {
         didSet {
@@ -56,13 +69,21 @@ class Component: GKComponent {
         }
     }
     
-    func remove(){
-        system?.removeComponent(self)
-        gameObject.removeComponentForClass(self.classForCoder)
+    func detach() -> Component{
+        detachFromEntity()
+        detachFromSystem()
+        return self
     }
     
-    internal func OnComponentAdded() {
-        
+    func detachFromEntity() -> Component{
+        gameObject.removeComponentForClass(self.classForCoder)
+        return self
+    }
+    
+    func detachFromSystem() -> Component{
+        system?.removeComponent(self)
+        system = nil
+        return self
     }
     
     override init() {

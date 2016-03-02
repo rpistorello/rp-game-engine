@@ -13,6 +13,9 @@ class GameScene: Scene {
     var parentSwitch = true
     
     override func loadObjects() {
+        //No gravity
+        physicsWorld.gravity = CGVector.zero
+        
         //NoSpriteObject is subclass of GameObject
         //Instantiated GameObjects or subclasses are automaticaly added to Scene
         for _ in 0...2 {
@@ -24,6 +27,9 @@ class GameScene: Scene {
         objects[1].transform.position = CGPoint(x: 300, y: 500)
         objects[2].transform.position = CGPoint(x: 200, y: 300)
         
+        objects[0].tag = "Richard"
+        objects[1].tag = "Ellie"
+        objects[2].tag = "Tod"
         
         //Rotation with SKAction
         let min = CGFloat(0.0).degreesToRadians()

@@ -10,8 +10,20 @@
 
 import SpriteKit
 
+internal class Root: SKNode {
+    var transform: Transform!
+    var gameObject: GameObject!
+    override init() {
+        super.init()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 class Transform: Component {
-    private let root = SKNode()
+    private let root = Root()
     
     override var active: Bool {
         didSet {
@@ -22,6 +34,11 @@ class Transform: Component {
     var hidden: Bool {
         get { return root.hidden }
         set { root.hidden = newValue }
+    }
+    
+    internal override init() {
+        super.init()
+        root.transform = self
     }
     
     //MARK: Parent
@@ -149,6 +166,7 @@ class Transform: Component {
     }
     
     override func OnComponentAdded() {
+        root.gameObject = gameObject
         updateRoot()
     }
     

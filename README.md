@@ -1,5 +1,5 @@
 # rp-game-engine
-A Spritekit Game Engine made in Swift.
+A Framework for games made in Swift.
 
 To-do list
 -
